@@ -8,7 +8,6 @@ namespace CriptografiaRSA
         static string TEXTO_ENTRADA_INVALIDA = "Entrada inválida. Favor digitar uma das opções corretamente.\n";
         static string TEXTO_ERRO_RETORNA_PRINCIPAL = "Erro ao tentar converter o número. Ele deve ser do tipo inteiro e maior que 0. O programa está retornando para a página principal.\n";
         static string TEXTO_MAIOR_QUE_128_RETORNA_PRINCIPAL = "Texto digitado incorretamente. A quantidade de caracteres máxima é de 128. O programa está retornando para a página principal.\n";
-        static string TEXTO_ERRO_NUMERO_NAO_PRIMO_RETORNA_PRINCIPAL = "O(s) número(s) digitado(s) não é(são) primo(s). O Programa está retornando para a página principal.\n";
 
         public struct Usuario
         {
@@ -159,25 +158,26 @@ namespace CriptografiaRSA
 
         public static bool OpcaoGerarChaves(ref RSACriptUnip criptografer)
         {
-            int key_p = 0, key_q = 0, key_encrypt, key_descrypt, moduloN, totienteN;
+            int p = 0, q = 0, key_encrypt, key_descrypt, moduloN, totienteN;
             bool encontrouPrimos = false;
             Random rdn = new Random();
+            string chavePublica = "";
 
             while (encontrouPrimos == false)
             {
                 // Gera um valor aleatorio para P e Q tal que 101 <= p <= 997 e 101 <= q <= 997
-                key_p = rdn.Next(100, 997);
-                key_q = rdn.Next(1000);
-                key_q = rdn.Next(100, 997);
+                p = rdn.Next(100, 997);
+                q = rdn.Next(1000);
+                q = rdn.Next(100, 997);
 
                 // Verifica se os números digitados são primos
-                if (!VerificaPrimo(key_p))
+                if (!VerificaPrimo(p))
                 {
                     encontrouPrimos = false;
                 }
                 else
                 {
-                    if (!VerificaPrimo(key_q))
+                    if (!VerificaPrimo(q))
                     {
                         encontrouPrimos = false;
                     }
@@ -189,16 +189,16 @@ namespace CriptografiaRSA
             }
 
             // Calcula a chave pública N e armazena no objeto
-            moduloN = criptografer.CalcularN(key_p, key_q);
+            moduloN = criptografer.CalcularN(p, q);
 
             // Calcula e retorna o totiente de N
-            totienteN = criptografer.CalcularTotienteN(key_p, key_q);
+            totienteN = criptografer.CalcularTotienteN(p, q);
 
             // Calcula a segunda chave púbica E e armazena no objeto
             criptografer.CalcularE(totienteN);
 
             // Pega a chave pública E(chave que utiliza para CRIPTOGRAFAR)
-            key_encrypt = criptografer.Key_Encrypt;
+            chavePublica = criptografer.RetornaChavePublica(criptografer.eValue, moduloN);
 
             // Imprime para o usuário o módulo N
             Console.WriteLine("\nGuarde o módulo N:");
@@ -206,7 +206,7 @@ namespace CriptografiaRSA
 
             // Imprime para o usuário a chave de criptografia
             Console.WriteLine("\nGuarde a chave de criptografia:");
-            Console.WriteLine(key_encrypt);
+            Console.WriteLine(chavePublica);
 
             // Calcula e retorna a terceira chave privada D(chave que utiliza para DESCRIPTOGRAFAR)
             key_descrypt = criptografer.CalcularInversoD(totienteN);
