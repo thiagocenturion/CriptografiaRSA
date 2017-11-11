@@ -53,68 +53,71 @@ namespace CriptografiaRSA
             int numMenorAux = 0;
             int numMaiorAux = 0;
 
-            // Verifica se possuímos o totiente de N
-            if (totienteN != 0)
+            // Looping gerando o valor 'e' tal que 1 < e < totienteN
+            for (e = totienteN-1; 1 > e; e++)
             {
-                // Enquanto o número escolhido para E não puder ser utilizado, recalcula
-                while (podeSer == false)
+                // Se o máximo divisor comum entre 'e' e 'totienteN' for 1
+                if (mdc(e, totienteN) == 1)
                 {
-                    // Escolhe um número aleatório que satisfaça 1 > e > totienteN
-                    e = numRandomico.Next(2, totienteN);
+                    // Significa que achamos o valor 'e' que obedece à condição desejada
+                    break;
+                }
+            }
 
-                    // Pega todos os divisores de e
-                    divisoresE = RetornaDivisores(e);
+            // Enquanto o número escolhido para E não puder ser utilizado, recalcula
+            while (podeSer == false)
+            {
+                // Pega todos os divisores de e
+                divisoresE = RetornaDivisores(e);
 
-                    // Pega todos os divisores de totiente de N
-                    divisoresTotienteN = RetornaDivisores(totienteN);
+                // Pega todos os divisores de totiente de N
+                divisoresTotienteN = RetornaDivisores(totienteN);
 
-                    // Verifica qual dos 2 arrays possuem menores elementos para poder utilizar como base para o loop
-                    countMenor = (divisoresE.Count > divisoresTotienteN.Count ? divisoresTotienteN.Count : divisoresE.Count);
+                // Verifica qual dos 2 arrays possuem menores elementos para poder utilizar como base para o loop
+                countMenor = (divisoresE.Count > divisoresTotienteN.Count ? divisoresTotienteN.Count : divisoresE.Count);
 
-                    // Pega qual possui maiores elementos
-                    countMaior = (divisoresE.Count > divisoresTotienteN.Count ? divisoresE.Count : divisoresTotienteN.Count);
-
-                    // Loop para verificar se E e totienteN possuem divisores comuns
-                    for (int i = 0; i < countMenor; i++)
+                // Pega qual possui maiores elementos
+                countMaior = (divisoresE.Count > divisoresTotienteN.Count ? divisoresE.Count : divisoresTotienteN.Count);
+                // Loop para verificar se E e totienteN possuem divisores comuns
+                for (int i = 0; i < countMenor; i++)
+                {
+                    for (int j = 0; j < countMaior; j++)
                     {
-                        for (int j = 0; j < countMaior; j++)
+                        // Redescobre qual array possui menores elementos
+                        if (countMenor == divisoresE.Count)
                         {
-                            // Redescobre qual array possui menores elementos
-                            if (countMenor == divisoresE.Count)
-                            {
-                                // Os divisores de E possuem os menores elementos
-                                // Armazena o valor do primeiro index i e o numero do laço atual j
-                                numMenorAux = divisoresE[i];
-                                numMaiorAux = divisoresTotienteN[j];
-                            }
-                            else
-                            {
-                                // Os divisores de totienteN possuem os menores elementos
-                                // Armazena o valor do primeiro index i e o numero do laço atual j
-                                numMenorAux = divisoresTotienteN[i];
-                                numMaiorAux = divisoresE[j];
-                            }
-
-                            // 'e' e 'totienteN' possuem divisores em comum? (Com excessão de 1)
-                            if (numMenorAux == numMaiorAux && numMenorAux != 1)
-                            {
-                                // Caso possuam, seta que o valor de 'e' criado não pode ser utilizado e refaz o while (finaliza o loop menor para que possa finalizar o loop maior)
-                                podeSer = false;
-                                break;
-                            }
-                            else
-                            {
-                                // Até que o loop completo termine, ainda não houve divisores em comum. Ou seja, até agora o valor de 'e' pode ser utilizado
-                                podeSer = true;
-                            }
+                            // Os divisores de E possuem os menores elementos
+                            // Armazena o valor do primeiro index i e o numero do laço atual j
+                            numMenorAux = divisoresE[i];
+                            numMaiorAux = divisoresTotienteN[j];
+                        }
+                        else
+                        {
+                            // Os divisores de totienteN possuem os menores elementos
+                            // Armazena o valor do primeiro index i e o numero do laço atual j
+                            numMenorAux = divisoresTotienteN[i];
+                            numMaiorAux = divisoresE[j];
                         }
 
-                        // Se encontramos divisores em comum, 'e' atual não pode ser utilizado
-                        if (podeSer == false)
+                        // 'e' e 'totienteN' possuem divisores em comum? (Com excessão de 1)
+                        if (numMenorAux == numMaiorAux && numMenorAux != 1)
                         {
-                            // Finaliza o loop maior
+                            // Caso possuam, seta que o valor de 'e' criado não pode ser utilizado e refaz o while (finaliza o loop menor para que possa finalizar o loop maior)
+                            podeSer = false;
                             break;
                         }
+                        else
+                        {
+                            // Até que o loop completo termine, ainda não houve divisores em comum. Ou seja, até agora o valor de 'e' pode ser utilizado
+                            podeSer = true;
+                        }
+                    }
+
+                    // Se encontramos divisores em comum, 'e' atual não pode ser utilizado
+                    if (podeSer == false)
+                    {
+                        // Finaliza o loop maior
+                        break;
                     }
                 }
             }
@@ -225,6 +228,25 @@ namespace CriptografiaRSA
 
             // Retorna o texto original
             return textoOriginal;
+        }
+
+        // Método recursivo que calcula o máximo divisor comum entre os dois parâmetros
+        public BigInteger mdc(BigInteger a, BigInteger b)
+        {
+            BigInteger aux = 0;
+
+            while (true)
+            {
+                aux = a % b;
+
+                if (aux == 0)
+                {
+                    return b;
+                }
+
+                a = b;
+                b = aux;
+            }
         }
     }
 }
