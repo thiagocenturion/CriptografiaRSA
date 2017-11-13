@@ -6,7 +6,6 @@ namespace CriptografiaRSA
     {
         // Constantes
         static string TEXTO_ENTRADA_INVALIDA = "Entrada inválida. Favor digitar uma das opções corretamente.\n";
-        static string TEXTO_ERRO_RETORNA_PRINCIPAL = "Erro ao tentar converter o número. Ele deve ser do tipo inteiro e maior que 0. O programa está retornando para a página principal.\n";
         static string TEXTO_MAIOR_QUE_128_RETORNA_PRINCIPAL = "Texto digitado incorretamente. A quantidade de caracteres máxima é de 128. O programa está retornando para a página principal.\n";
 
         public struct Usuario
