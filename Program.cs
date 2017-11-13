@@ -158,17 +158,18 @@ namespace CriptografiaRSA
 
         public static bool OpcaoGerarChaves(ref RSACriptUnip criptografer)
         {
-            int p = 0, q = 0, key_encrypt, key_descrypt, moduloN, totienteN;
+            int p = 0, q = 0, moduloN, totienteN, d;
             bool encontrouPrimos = false;
             Random rdn = new Random();
             string chavePublica = "";
+            string chavePrivada = "";
 
             while (encontrouPrimos == false)
             {
                 // Gera um valor aleatorio para P e Q tal que 101 <= p <= 997 e 101 <= q <= 997
-                p = rdn.Next(100, 997);
+                p = rdn.Next(1, 997);
                 q = rdn.Next(1000);
-                q = rdn.Next(100, 997);
+                q = rdn.Next(1, 997);
 
                 // Verifica se os números digitados são primos
                 if (!VerificaPrimo(p))
@@ -200,27 +201,24 @@ namespace CriptografiaRSA
             // Pega a chave pública E(chave que utiliza para CRIPTOGRAFAR)
             chavePublica = criptografer.RetornaChavePublica(criptografer.eValue, moduloN);
 
-            // Imprime para o usuário o módulo N
-            Console.WriteLine("\nGuarde o módulo N:");
-            Console.WriteLine(moduloN);
-
             // Imprime para o usuário a chave de criptografia
-            Console.WriteLine("\nGuarde a chave de criptografia:");
+            Console.WriteLine("\nChave Pública:");
             Console.WriteLine(chavePublica);
 
             // Calcula e retorna a terceira chave privada D(chave que utiliza para DESCRIPTOGRAFAR)
-            key_descrypt = criptografer.CalcularInversoD(totienteN);
+            d = criptografer.CalcularInversoD(totienteN);
+            chavePrivada = criptografer.RetornaChavePrivada(d, moduloN);
 
             // Imprime para o usuário a chave de descriptografia
-            Console.WriteLine("\nGuarde a chave de descriptografia:");
-            Console.WriteLine(key_descrypt);
+            Console.WriteLine("\nChave Privada:");
+            Console.WriteLine(chavePrivada);
 
             return true;
         }
 
         public static bool OpcaoCriptografia(ref RSACriptUnip criptografer)
         {
-            int key_encrypt, moduloN;
+            string chavePublica;
             string textoOriginal, textoCifrado = "";
 
             // Solicita para o usuário digitar um texto
@@ -238,46 +236,28 @@ namespace CriptografiaRSA
                 return false;
             }
 
-            // Solicita o módulo N
-            Console.WriteLine("\nDigite o módulo N:");
-
-            // Tenta converter moduloN
-            if (int.TryParse(Console.ReadLine(), out moduloN) == false && moduloN == 0)
-            {
-                // Caso tenha ocorrido um erro ao tentar converter o valor para inteiro, exibe uma mensagem de erro e retorna para a página principal
-                Console.WriteLine(TEXTO_ERRO_RETORNA_PRINCIPAL);
-                return false;
-            }
-
             // Solicita a chave de criptografia
-            Console.WriteLine("\nDigite a chave de CRIPTOGRAFIA:");
+            Console.WriteLine("\nDigite a Chave Pública:");
+            chavePublica = Console.ReadLine();
 
-            // Tenta converter key_encrypt
-            if (int.TryParse(Console.ReadLine(), out key_encrypt) == false && key_encrypt == 0)
-            {
-                // Caso tenha ocorrido um erro ao tentar converter o valor para inteiro, exibe uma mensagem de erro e retorna para a página principal
-                Console.WriteLine(TEXTO_ERRO_RETORNA_PRINCIPAL);
-                return false;
-            }
-
-            // Realiza a criptografia do texto digitado fornecendo a chave de criptografia
-            textoCifrado = criptografer.Criptografar(textoOriginal, key_encrypt, moduloN);
+            // Realiza a criptografia do texto digitado fornecendo a chave pública
+            textoCifrado = criptografer.Criptografar(textoOriginal, chavePublica);
 
             // Imprime os controles de decisões
             Console.WriteLine("\n\n=====================================");
             Console.WriteLine("== TEXTO CRIPTOGRAFADO COM SUCESSO ==");
             Console.WriteLine("=====================================");
-            Console.WriteLine("Guarde o texto cifrado:\n");
+            Console.WriteLine("\nGuarde o texto cifrado:");
             Console.WriteLine(textoCifrado);
-            Console.WriteLine("\n\n");
+            Console.WriteLine("\n");
 
             return true;
         }
 
         public static bool OpcaoDescriptografia(ref RSACriptUnip criptografer)
         {
-            int key_descrypt, moduloN;
-            string textoOriginal, textoCifrado = "";
+            string chavePrivada = "";
+            string textoOriginal = "", textoCifrado = "";
 
             // Solicita para o usuário digitar um texto
             Console.WriteLine("\nDigite um texto para descriptografar:");
@@ -285,38 +265,20 @@ namespace CriptografiaRSA
             // Pega o texto digitado
             textoCifrado = Console.ReadLine();
 
-            // Solicita o módulo N
-            Console.WriteLine("\nDigite o módulo N:");
-
-            // Tenta converter moduloN
-            if (int.TryParse(Console.ReadLine(), out moduloN) == false && moduloN == 0)
-            {
-                // Caso tenha ocorrido um erro ao tentar converter o valor para inteiro, exibe uma mensagem de erro e retorna para a página principal
-                Console.WriteLine(TEXTO_ERRO_RETORNA_PRINCIPAL);
-                return false;
-            }
-
             // Solicita a chave de descriptografia
-            Console.WriteLine("\nDigite a chave de DESCRIPTOGRAFIA:");
-
-            // Tenta converter key_encrypt
-            if (int.TryParse(Console.ReadLine(), out key_descrypt) == false && key_descrypt == 0)
-            {
-                // Caso tenha ocorrido um erro ao tentar converter o valor para inteiro, exibe uma mensagem de erro e retorna para a página principal
-                Console.WriteLine(TEXTO_ERRO_RETORNA_PRINCIPAL);
-                return false;
-            }
+            Console.WriteLine("\nDigite a Chave Privada:");
+            chavePrivada = Console.ReadLine();
 
             // Realiza a criptografia do texto digitado fornecendo a chave de criptografia
-            textoOriginal = criptografer.Descriptografar(textoCifrado, key_descrypt, moduloN);
+            textoOriginal = criptografer.Descriptografar(textoCifrado, chavePrivada);
 
             // Imprime os controles de decisões
             Console.WriteLine("\n\n========================================");
             Console.WriteLine("== TEXTO DESCRIPTOGRAFADO COM SUCESSO ==");
             Console.WriteLine("========================================");
-            Console.WriteLine("Texto original:\n");
+            Console.WriteLine("\nTexto original:");
             Console.WriteLine(textoOriginal);
-            Console.WriteLine("\n\n");
+            Console.WriteLine("\n");
 
             return true;
         }
@@ -359,7 +321,7 @@ namespace CriptografiaRSA
             while (repete == true)
             {
                 // Pergunta para o usuário se deseja continuar
-                Console.WriteLine("Deseja sair do programa? S/N");
+                Console.WriteLine("\nDeseja continuar no programa? S/N");
 
                 // Tenta converter o charResposta
                 if (!char.TryParse(Console.ReadLine(), out charResposta))
@@ -377,7 +339,7 @@ namespace CriptografiaRSA
                         repete = false;
 
                         // Retorna SIM
-                        retorno = true;
+                        retorno = false;
 
                         break;
 
@@ -387,7 +349,7 @@ namespace CriptografiaRSA
                         repete = false;
 
                         // retorna NÃO
-                        retorno = false;
+                        retorno = true;
 
                         break;
 
